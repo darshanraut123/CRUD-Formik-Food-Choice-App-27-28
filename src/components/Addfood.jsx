@@ -40,7 +40,6 @@ function Addfood() {
     }),
     onSubmit: (values) => {
       addMyFood(values);
-      navigate("/");
     },
   });
 
@@ -62,9 +61,12 @@ function Addfood() {
       "https://6199eedf9022ea0017a7af8a.mockapi.io/foods",
       dataToAdd
     );
-    context.setFoodData(tempData);
+    if(response.status===201){
+      context.setFoodData(tempData);
+      setTimeout(() => navigate("/"), 1000);
+      
+    }
   }
-
   return (
     <div className="row mainBody">
       <div className="container">

@@ -44,11 +44,17 @@ function Editfood() {
         third: values.third,
       },
     };
-    context.foodData[params.id - 1] = temp;
+    let position= null;
+    for(let i in context.foodData){
+      if(context.foodData[i].id===params.id)
+        position=i;
+    }
+    context.foodData[position] = temp;
     let apiData = await axios.put(
       "https://6199eedf9022ea0017a7af8a.mockapi.io/foods/" + params.id,
       temp
     );
+    console.log(position)
   }
 
   const defaultData = {

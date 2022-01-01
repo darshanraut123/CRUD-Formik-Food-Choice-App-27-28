@@ -13,7 +13,7 @@ function App() {
 
   useEffect(() => {
     getApiData();
-  }, []);
+  }, [foodData]);
 
   //Gets the data from API and loads in all food component
   async function getApiData() {

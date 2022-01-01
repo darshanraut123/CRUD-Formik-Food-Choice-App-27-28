@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import Fooditem from './Fooditem';
 import {useContext} from 'react';
 import {Foodcontext} from '../App';
@@ -6,7 +6,6 @@ import {Foodcontext} from '../App';
 
 function Allfood() {
   const context = useContext(Foodcontext);
-
   return (
     <div className="row mainBody">
       <div className="container">
