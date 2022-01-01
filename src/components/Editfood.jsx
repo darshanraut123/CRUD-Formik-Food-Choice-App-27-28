@@ -1,69 +1,85 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Foodcontext } from "../App";
-import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
-//Component for new food addition
-function Addfood() {
+//Component for editing the food 
+function Editfood() {
+  const params = useParams();
   const context = useContext(Foodcontext);
   const navigate = useNavigate();
-  const formik = useFormik({
-    initialValues: {
-      food: "",
-      price: "",
-      first: "",
-      second: "",
-      third: "",
-    },
-    validationSchema: Yup.object({
-      food: Yup.string()
-        .max(10, "Must be 10 characters or less")
-        .min(3, "Too short")
-        .required("Required"),
-      price: Yup.number("Enter only number")
-        .required("Required")
-        .max(500, "Choose lower price"),
-      first: Yup.string()
-        .max(20, "Too long")
-        .min(3, "Too short")
-        .required("Required"),
-      second: Yup.string()
-        .max(20, "Too long")
-        .min(3, "Too short")
-        .required("Required"),
-      third: Yup.string()
-        .max(20, "Too long")
-        .min(3, "Too short")
-        .required("Required"),
-    }),
-    onSubmit: (values) => {
-      addMyFood(values);
-      navigate("/");
-    },
-  });
+  const [myData, setMyData] = useState();
 
-  //Function which adds food data to api
-  async function addMyFood(values) {
-    let tempData = context.foodData;
-    let dataToAdd = {
-      name: values.food,
+  useEffect(() => {
+    getData();
+  }, []);
+
+  //Gets the data and updates the state
+  async function getData() {
+    let apiData = await axios.get(
+      "https://6199eedf9022ea0017a7af8a.mockapi.io/foods"
+    );
+    let obj = await apiData.data.filter((res) => res.id === params.id);
+    obj = obj[0];
+    let temp = {
+      name: obj.name,
+      price: obj.price,
+      first: obj.toppings.first,
+      second: obj.toppings.second,
+      third: obj.toppings.third,
+    };
+    setMyData(temp);
+  }
+
+  //Saves the updated food data
+  async function editSaveFood(values) {
+    let temp = {
+      name: values.name,
       price: values.price,
       toppings: {
         first: values.first,
         second: values.second,
         third: values.third,
-      }
-    }
-    //Pushing the data at the end of array
-    tempData.push(dataToAdd);
-    let response = await axios.post(
-      "https://6199eedf9022ea0017a7af8a.mockapi.io/foods",
-      dataToAdd
+      },
+    };
+    context.foodData[params.id - 1] = temp;
+    let apiData = await axios.put(
+      "https://6199eedf9022ea0017a7af8a.mockapi.io/foods/" + params.id,
+      temp
     );
-    context.setFoodData(tempData);
   }
+
+  const defaultData = {
+    name: "",
+    price: "",
+    first: "",
+    second: "",
+    third: "",
+  };
+
+  //Formik object for form data validation
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: myData || defaultData,
+    validationSchema: Yup.object().shape({
+      name: Yup.string()
+        .max(7, "Must be 15 characters or less")
+        .required("Required!"),
+      price: Yup.number()
+        .max(1000, "Price should be less than 1000")
+        .min(1, "Price should be more than 1")
+        .required("Required!"),
+      first: Yup.string().required("Required!"),
+      second: Yup.string().required("Required!"),
+      third: Yup.string().required("Required!"),
+    }),
+    onSubmit: (values) => {
+      editSaveFood(values);
+      navigate("/");
+    },
+  });
 
   return (
     <div className="row mainBody">
@@ -72,18 +88,19 @@ function Addfood() {
           <div className="col-md-1"></div>
           <div className="col-md-10 mainBanner ">
             <form onSubmit={formik.handleSubmit} className="inputs">
-              <span>Add Food Item</span>
-              <label htmlFor="food">
+              <span>Edit Food Item</span>
+
+              <label htmlFor="name">
                 Enter Food Name :{" "}
-                {formik.errors.food  && formik.touched.food? (
-                  <small>{formik.errors.food}</small>
+                {formik.errors.name && formik.touched.name ? (
+                  <small>{formik.errors.name}</small>
                 ) : null}
               </label>
               <input
                 type="text"
-                id="food"
-                name="food"
-                value={formik.values.food}
+                id="name"
+                name="name"
+                value={formik.values.name}
                 onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
               />
@@ -98,14 +115,14 @@ function Addfood() {
                 type="text"
                 id="price"
                 name="price"
-                onBlur={formik.handleBlur}
                 value={formik.values.price}
+                onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
               />
 
               <label htmlFor="first">
                 Enter first topping :{" "}
-                {formik.errors.first  && formik.touched.first ? (
+                {formik.errors.first && formik.touched.first ? (
                   <small>{formik.errors.first}</small>
                 ) : null}
               </label>
@@ -113,14 +130,14 @@ function Addfood() {
                 type="text"
                 id="first"
                 name="first"
-                onBlur={formik.handleBlur}
                 value={formik.values.first}
+                onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
               />
 
               <label htmlFor="second">
                 Enter second topping :{" "}
-                {formik.errors.second  && formik.touched.second? (
+                {formik.errors.second && formik.touched.second ? (
                   <small>{formik.errors.second}</small>
                 ) : null}
               </label>
@@ -129,14 +146,14 @@ function Addfood() {
                 type="text"
                 id="second"
                 name="second"
-                onBlur={formik.handleBlur}
                 value={formik.values.second}
+                onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
               />
 
               <label htmlFor="third">
                 Enter third topping :{" "}
-                {formik.errors.third  && formik.touched.third? (
+                {formik.errors.third && formik.touched.third ? (
                   <small>{formik.errors.third}</small>
                 ) : null}
               </label>
@@ -167,4 +184,4 @@ function Addfood() {
   );
 }
 
-export default Addfood;
+export default Editfood;

@@ -42,8 +42,8 @@ body{
   .item{
       height: 300px;
       width: 420px;
-      background-color: rgb(152, 247, 140);
-      margin: 30px 20px 0px 20px;
+      background-color: rgb(222, 222, 150);
+      margin: 30px 20px 20px 20px;
       opacity: 1;
       border-radius: 5px;
       box-shadow: 10px 10px 10px 0px black;
@@ -133,4 +133,13 @@ body{
         color: red;
         font-weight: bolder;
         text-align: left;
+    }
+
+    .editDelete{
+        display: flex;
+        justify-content: space-around;
+        flex-direction: row;
+    }
+
+    .editDelete div{        cursor: pointer;
     }
